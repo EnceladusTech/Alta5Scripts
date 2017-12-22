@@ -23,34 +23,34 @@ for (let symbol in $stocks) {
     var currPriceDateTime = $now;
     switch (symbol) {
         case $stock1.symbol:
-            currPrice = $stock1.mark;
+            currPrice = $stock1.last;
             break;
         case $stock2.symbol:
-            currPrice = $stock2.mark;
+            currPrice = $stock2.last;
             break;
         case $stock3.symbol:
-            currPrice = $stock3.mark;
+            currPrice = $stock3.last;
             break;
         case $stock4.symbol:
-            currPrice = $stock4.mark;
+            currPrice = $stock4.last;
             break;
         case $stock5.symbol:
-            currPrice = $stock5.mark;
+            currPrice = $stock5.last;
             break;
         case $stock6.symbol:
-            currPrice = $stock6.mark;
+            currPrice = $stock6.last;
             break;
         case $stock7.symbol:
-            currPrice = $stock7.mark;
+            currPrice = $stock7.last;
             break;
         case $stock8.symbol:
-            currPrice = $stock8.mark;
+            currPrice = $stock8.last;
             break;
         case $stock9.symbol:
-            currPrice = $stock9.mark;
+            currPrice = $stock9.last;
             break;
         case $stock10.symbol:
-            currPrice = $stock10.mark;
+            currPrice = $stock10.last;
             break;
         default:
             $log('stock symbol not found!', symbol);
@@ -170,22 +170,15 @@ for (let symbol in $stocks) {
             sigCount++;
             // ??? do we take the stop loss of the smallest interval or largest interval ???
             stopLossVal = sigState[intvl].stopLoss;
+            sigState[intvl].lastBar.intvl = intvl; // put the interval into the last bar so we can use it on the reporting side
             stopLossIntvl = intvl;
         }
     }
 
     if (sigCount > 1) {
-
-        var setupBarInfo = '';
         for (let idx = 0; idx < decisionBars.length; idx++) {
             var setLvl = decisionBars[idx].high - (decisionBars[idx].high - decisionBars[idx].low) / $multiplier;
-            setupBarInfo += //'\n\rintvl: ' + decisionBars[idx].interval +
-                '\n\rhigh: ' + decisionBars[idx].high +
-                '\n\rlow: ' + decisionBars[idx].low +
-                '\n\ropen: ' + decisionBars[idx].open +
-                '\n\rclose: ' + decisionBars[idx].close +
-                '\n\rdatetime: ' + decisionBars[idx].date +
-                '\n\rsetLvl: ' + setLvl;
+            decisionBars[idx].setLvl = setLvl;
         }
 
         var request = {
@@ -193,7 +186,7 @@ for (let symbol in $stocks) {
             method: 'post',
             data: {
                 'symbol': symbol,
-                'barInfo': setupBarInfo,
+                'barInfo': decisionBars,
                 'multiplier': $multiplier,
                 'breakOutPrice': currPrice,
                 'breakOutTime': currPriceDateTime,
