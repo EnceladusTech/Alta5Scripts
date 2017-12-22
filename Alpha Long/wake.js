@@ -9,7 +9,7 @@ $maxPosValue = {};
 $pctOffMax = {};
 
 $stocks = {};
-var stockCount = 0;
+var stockCount = 10;
 var completedCount = 0;
 
 $log('Initializing stock variables...');
@@ -18,145 +18,65 @@ $bot.log('Initializing stock variables...');
 // SETUP STOCK VARIABLE ==================================
 if (!!$stock1) {
     stockCount++;
-    $stocks[$stock1.symbol] = {
-        //   'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock1.symbol] = {};
 }
 
 if (!!$stock2) {
     stockCount++;
-    $stocks[$stock2.symbol] = {
-        //   'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock2.symbol] = {};
 }
 
 if (!!$stock3) {
     stockCount++;
-    $stocks[$stock3.symbol] = {
-        //  'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock3.symbol] = {};
 }
 if (!!$stock4) {
     stockCount++;
-    $stocks[$stock4.symbol] = {
-        //  'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock4.symbol] = {};
 }
 if (!!$stock5) {
     stockCount++;
-    $stocks[$stock5.symbol] = {
-        //  'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock5.symbol] = {};
 }
 if (!!$stock6) {
     stockCount++;
-    $stocks[$stock6.symbol] = {
-        //  'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock6.symbol] = {};
 }
 if (!!$stock7) {
     stockCount++;
-    $stocks[$stock7.symbol] = {
-        //  'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock7.symbol] = {};
 }
 if (!!$stock8) {
     stockCount++;
-    $stocks[$stock8.symbol] = {
-        //  'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock8.symbol] = {};
 }
 if (!!$stock9) {
     stockCount++;
-    $stocks[$stock9.symbol] = {
-        // 'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-
-    };
+    $stocks[$stock9.symbol] = {};
 }
 if (!!$stock10) {
     stockCount++;
-    $stocks[$stock10.symbol] = {
-        //'p1min': null,
-        'p5min': null,
-        'p10min': null,
-        'p15min': null,
-        'p30min': null
-    };
+    $stocks[$stock10.symbol] = {};
 }
 // =======================================================
 $log(stockCount + ' stock variables initialized...');
 $bot.log(stockCount + ' stock variables initialized...');
-// Get the data
-if (!!$stock1) {
-    getData($stock1);
-}
-if (!!$stock2) {
-    getData($stock2);
-}
-if (!!$stock3) {
-    getData($stock3);
-}
-if (!!$stock4) {
-    getData($stock4);
-}
-if (!!$stock5) {
-    getData($stock5);
-}
-if (!!$stock6) {
-    getData($stock6);
-}
-if (!!$stock7) {
-    getData($stock7);
-}
-if (!!$stock8) {
-    getData($stock8);
-}
-if (!!$stock9) {
-    getData($stock9);
-}
-if (!!$stock10) {
-    getData($stock10);
-}
-//
+
 function getData(thisStock) {
     $log('Retrieving data for ' + thisStock.symbol + '...');
     $data
+        .chart({
+            symbol: thisStock,
+            interval: '1d',
+            period: '1d',
+            minBars: 1
+        })
+        .chart({
+            symbol: thisStock,
+            interval: '1h',
+            period: '1d',
+            minBars: 1
+        })
         .chart({
             symbol: thisStock,
             interval: '30m',
@@ -186,7 +106,7 @@ function getData(thisStock) {
         //      interval: '1m',
         //      period: 'intraday'
         //  })
-        .then(function(_30m, _15m, _10m, _5m) {
+        .then(function (_1d, _1h, _30m, _15m, _10m, _5m) {
             // $log(
             //       _30m
             //       _15m.bars[_15m.bars.length - 1],
@@ -194,14 +114,15 @@ function getData(thisStock) {
             //      _5m.bars[_5m.bars.length - 1],
             //       _1m.bars[_1m.bars.length - 1]
             //   );
-
+            $stocks[thisStock.symbol].p1d = _1d;
+            $stocks[thisStock.symbol].p1h = _1h;
             $stocks[thisStock.symbol].p30min = _30m;
             $stocks[thisStock.symbol].p15min = _15m;
             $stocks[thisStock.symbol].p10min = _10m;
             $stocks[thisStock.symbol].p5min = _5m;
             //  $stocks[thisStock.symbol].p1min = _1m;
             completedCount++;
-          //  $log('Data Retrieval complete for ' + thisStock.symbol + '...' + '(' + completedCount + '/' + stockCount + ')');
+            //  $log('Data Retrieval complete for ' + thisStock.symbol + '...' + '(' + completedCount + '/' + stockCount + ')');
             if (completedCount === stockCount) {
                 $log('All Data Retrieved', $stocks);
                 $done();
