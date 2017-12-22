@@ -1,9 +1,8 @@
+for (let symbol in $stockIndices) {
 
-for (let symbol in $stocks) {
+    var stockIdxs = $stockIndices[symbol];
 
-    var stock = $stocks[symbol];
-
-    // $log('running symbol "' + symbol + '"', stock);
+    $log('running symbol "' + symbol + '"', stockIdxs);
     // first check if this stock has an open position
     // if it does then skip it as for now we will only have one open position for each stock
     var oppFound = false;
@@ -13,7 +12,6 @@ for (let symbol in $stocks) {
             break;
         }
     }
-
     if (oppFound === true) {
         continue;
     }
@@ -58,102 +56,84 @@ for (let symbol in $stocks) {
             break;
     }
     //===============
-    var sigState = {
-        //   '1min': {
-        //        'lastBar': stock.p1min.bars.length - 1 > -1 ? stock.p1min.bars[stock.p1min.bars.length - 1] : undefined,
-        //       'signal': false,
-        //       'stopLoss': 0
-        //   },
-        '5min': {
-            'lastBar': stock.p5min.bars.length - 1 > -1 ? stock.p5min.bars[stock.p5min.bars.length - 1] : undefined,
-            'signal': false,
-            'stopLoss': 0
-        },
-        '10min': {
-            'lastBar': stock.p10min.bars.length - 1 > -1 ? stock.p10min.bars[stock.p10min.bars.length - 1] : undefined,
-            'signal': false,
-            'stopLoss': 0
-        },
-        '15min': {
-            'lastBar': stock.p15min.bars.length - 1 > -1 ? stock.p15min.bars[stock.p15min.bars.length - 1] : undefined,
-            'signal': false,
-            'stopLoss': 0
-        },
-        '30min': {
-            'lastBar': stock.p30min.bars.length - 1 > -1 ? stock.p30min.bars[stock.p30min.bars.length - 1] : undefined,
-            'signal': false,
-            'stopLoss': 0
-        }
-    };
     var decisionBars = [];
-
     var nowHours = $now.getHours();
     var nowMins = $now.getMinutes();
-    for (var intvl in sigState) {
-        if (!!sigState[intvl].lastBar) {
-            // check if last bar is the proper bar, 
-            // ie if that last bar has been fully resolved and is available
-            // ie if its 12:31 and the last bar for the 30min interval is 10:30 we don't won't to use this interval at this time
-            var lbDateHours = sigState[intvl].lastBar.date.getHours();
-            var lbDateMins = sigState[intvl].lastBar.date.getMinutes();
-            switch (intvl) {
-                case '30min':
-                    var dmRatio = lbDateMins / 30;
-                    var nmRatio = nowMins / 30;
-                    var diff = nmRatio - dmRatio;
-                    if (nowHours !== lbDateHours || diff > 1) {
-                        continue;
-                    }
-                    break;
-                case '15min':
-                    var dmRatio = lbDateMins / 15;
-                    var nmRatio = nowMins / 15;
-                    var diff = nmRatio - dmRatio;
-                    if (nowHours !== lbDateHours || diff > 1) {
-                        continue;
-                    }
-                    break;
-                case '10min':
-                    var dmRatio = lbDateMins / 10;
-                    var nmRatio = nowMins / 10;
-                    var diff = nmRatio - dmRatio;
-                    if (nowHours !== lbDateHours || diff > 1) {
-                        continue;
-                    }
-                    break;
-                case '5min':
-                    var dmRatio = lbDateMins / 5;
-                    var nmRatio = nowMins / 5;
-                    var diff = nmRatio - dmRatio;
-                    if (nowHours !== lbDateHours || diff > 1) {
-                        continue;
-                    }
-                    break;
-                //  case '1min':
-                //      var dmRatio = lbDateMins / 1;
-                //      var nmRatio = nowMins / 1;
-                //      var diff = nmRatio - dmRatio;
-                //      if (nowHours !== lbDateHours || diff > 1) {
-                //          continue;
-                //      }
-                //      break;
-                default:
-                    $bot.log('Unknown interval "' + intvl + '"');
-                    break;
-            }
-
-            var setLvl = sigState[intvl].lastBar.high - (sigState[intvl].lastBar.high - sigState[intvl].lastBar.low) / $multiplier;
-            if (sigState[intvl].lastBar.open > setLvl && sigState[intvl].lastBar.close > setLvl) {
-                // now we have prev bar setup properly
-                // check if current price has broke out
-                if (currPrice > sigState[intvl].lastBar.high) {
-                    sigState[intvl].signal = true;
-                    sigState[intvl].stopLoss = sigState[intvl].lastBar.low;
-                    $log(sigState[intvl].lastBar);
-                    decisionBars.push(sigState[intvl].lastBar);
+    for (var intvl in stockIdxs) {
+        // check if last bar is the proper bar, 
+        // ie if that last bar has been fully resolved and is available
+        // ie if its 12:31 and the last bar for the 30min interval is 10:30 we don't won't to use this interval at this time
+        var lastBar = $stockArray[stockIdxs[intvl]].lastBar;
+        var lbDateMonths = lastBar.date.getMonth();
+        var lbDateDays = lastBar.date.getDay();
+        var lbDateHours = lastBar.date.getHours();
+        var lbDateMins = lastBar.date.getMinutes();
+        $log(lastBar);
+        switch (intvl) {
+            case 'i1d':
+                // right now just trust the days
+                break;
+            case 'i1h':
+                if (nowHours !== lbDateHours) {
+                    continue;
                 }
+                break;
+            case 'i30m':
+                var dmRatio = lbDateMins / 30;
+                var nmRatio = nowMins / 30;
+                var diff = nmRatio - dmRatio;
+                if (nowHours !== lbDateHours || diff > 1) {
+                    continue;
+                }
+                break;
+            case 'i15m':
+                var dmRatio = lbDateMins / 15;
+                var nmRatio = nowMins / 15;
+                var diff = nmRatio - dmRatio;
+                if (nowHours !== lbDateHours || diff > 1) {
+                    continue;
+                }
+                break;
+            case 'i10m':
+                var dmRatio = lbDateMins / 10;
+                var nmRatio = nowMins / 10;
+                var diff = nmRatio - dmRatio;
+                if (nowHours !== lbDateHours || diff > 1) {
+                    continue;
+                }
+                break;
+            case 'i5min':
+                var dmRatio = lbDateMins / 5;
+                var nmRatio = nowMins / 5;
+                var diff = nmRatio - dmRatio;
+                if (nowHours !== lbDateHours || diff > 1) {
+                    continue;
+                }
+                break;
+            default:
+                $bot.log('Unknown interval "' + intvl + '"');
+                break;
+        }
+
+        var setLvl = lastBar.high - (lastBar.high - lastBar.low) / $multiplier;
+        if (lastBar.open > setLvl && lastBar.close > setLvl) {
+            // now we have prev bar setup properly
+            // check if current price has broke out
+            if (currPrice > lastBar.high) {
+                decisionBars.push({
+                    open: lastBar.open,
+                    high: lastBar.high,
+                    low: lastBar.low,
+                    close: lastBar.close,
+                    volume: lastBar.volume,
+                    time: lastBar.time,
+                    date: lastBar.date,
+                    intvl: intvl,
+                    setLvl: setLvl
+                });
             }
         }
+
     }
 
     // now we've calculated the signal for each interval lets check if we need to open a position
@@ -162,27 +142,19 @@ for (let symbol in $stocks) {
     var stopLossIntvl = '';
 
     var msg = [];
-    //  $log(sigState);
-    for (var intvl in sigState) {
-        if (sigState[intvl].signal === true) {
-            $log(intvl + ' @ ' + sigState[intvl].lastBar.date.text('M-D-YY hh:mm:ss A'));
-            msg.push(intvl + ' @ ' + sigState[intvl].lastBar.date.text('M-D-YY hh:mm:ss A'));
+    $log('decision bars lenght', decisionBars.length);
+    if (decisionBars.length > 1) {
+        for (let idx = 0; idx < decisionBars.length; idx++) {
+            $log(intvl + ' @ ' + decisionBars[idx].date.text('M-D-YY hh:mm:ss A'));
+            msg.push(intvl + ' @ ' + decisionBars[idx].date.text('M-D-YY hh:mm:ss A'));
             sigCount++;
             // ??? do we take the stop loss of the smallest interval or largest interval ???
-            stopLossVal = sigState[intvl].stopLoss;
-            sigState[intvl].lastBar.intvl = intvl; // put the interval into the last bar so we can use it on the reporting side
+            stopLossVal = decisionBars[idx].low;
             stopLossIntvl = intvl;
-        }
-    }
-
-    if (sigCount > 1) {
-        for (let idx = 0; idx < decisionBars.length; idx++) {
-            var setLvl = decisionBars[idx].high - (decisionBars[idx].high - decisionBars[idx].low) / $multiplier;
-            decisionBars[idx].setLvl = setLvl;
         }
 
         var request = {
-            url: 'https://joejordan-abcd.firebaseio.com/opportunities/open.json',
+            url: 'https://joejordan-abcd.firebaseio.com/open.json',
             method: 'post',
             data: {
                 'symbol': symbol,
@@ -194,7 +166,7 @@ for (let symbol in $stocks) {
             },
             encoder: 'json'
         };
-        
+
 
         $bot.open({
             type: 'equity',
@@ -205,5 +177,6 @@ for (let symbol in $stocks) {
                 '\nStop Loss: $' + stopLossVal +
                 '\nStop Loss Intvl: ' + stopLossIntvl
         });
+
     }
 }
