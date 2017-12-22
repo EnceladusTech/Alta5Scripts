@@ -2,7 +2,6 @@ $maxGained = 0;
 $maxPosValue = {};
 $pctOffMax = {};
 
-$stocks = {};
 var stockCount = 10;
 var completedCount = 0;
 
@@ -11,16 +10,17 @@ $bot.log('Initializing stock variables...');
 
 $stockArray = [];
 var idx = 0;
-$stockIndices[$stock1.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock2.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock3.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock4.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock5.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock6.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock7.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock8.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock9.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
-$stockIndices[$stock10.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices = {};
+$stockIndices[$stock1.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock2.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock3.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock4.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock5.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock6.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock7.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock8.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock9.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
+$stockIndices[$stock10.symbol] = { 'i1d': idx++, 'i1h': idx++, 'i30m': idx++, 'i15m': idx++, 'i10m': idx++, 'i5m': idx++ };
 
 getData($stock1);
 getData($stock2);
@@ -36,12 +36,6 @@ getData($stock10);
 
 function getData(thisStock) {
     $data
-        .chart({
-            symbol: thisStock,
-            interval: '1w',
-            period: '30d',
-            minBars: 1
-        })
         .chart({
             symbol: thisStock,
             interval: '1d',
@@ -78,8 +72,8 @@ function getData(thisStock) {
             period: 'intraday',
             minBars: 1
         })
-        .then(function (_1w, _1d, _1h, _30m, _15m, _10m, _5m) {
-            $stockArray.push(_1w);
+        .then(function (_1d, _1h, _30m, _15m, _10m, _5m) {
+            //$stockArray.push(_1w);
             $stockArray.push(_1d);
             $stockArray.push(_1h);
             $stockArray.push(_30m);
@@ -88,7 +82,7 @@ function getData(thisStock) {
             $stockArray.push(_5m);
             completedCount++;
             if (completedCount === stockCount) {
-                $log('All Data Retrieved', $stockArray);
+                $log('All Data Retrieved',$stockIndices, $stockArray );
                 $done();
             }
         });
