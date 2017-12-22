@@ -63,8 +63,53 @@ for (let symbol in $stockIndices) {
         // check if last bar is the proper bar, 
         // ie if that last bar has been fully resolved and is available
         // ie if its 12:31 and the last bar for the 30min interval is 10:30 we don't won't to use this interval at this time
-        var lastBar = $stockArray[stockIdxs[intvl]].lastBar;
-        var lbDateMonths = lastBar.date.getMonth();
+        var lngth = $stockArray[stockIdxs[intvl]].bars.length;
+        var lastOffset = 1;
+        switch (intvl) {
+            case 'i1d':
+                break;
+            case 'i1h':
+                break;
+            case 'i30m':
+                if (lngth < 2) {
+                    continue;
+                }
+                lastOffset = 2;
+                break;
+            case 'i15m':
+                if (lngth < 2) {
+                    continue;
+                }
+                lastOffset = 2;
+                break;
+            case 'i10m':
+                if (lngth < 2) {
+                    continue;
+                }
+                lastOffset = 2;
+                break;
+            case 'i5m':
+                if (lngth < 2) {
+                    continue;
+                }
+                lastOffset = 2;
+                break;
+        }
+        var lastFullBar = $stockArray[stockIdxs[intvl]].bars[lngth - lastOffset];
+        var setLvl = lastFullBar.high - (lastFullBar.high - lastFullBar.low) / $multiplier;
+        var lastBar = {
+            open: lastFullBar.open,
+            high: lastFullBar.high,
+            low: lastFullBar.low,
+            close: lastFullBar.close,
+            volume: lastFullBarvolume,
+            time: lastFullBar.time,
+            date: lastFullBar.date,
+            intvl: intvl,
+            setLvl: setLvl
+        };
+
+                var lbDateMonths = lastBar.date.getMonth();
         var lbDateDays = lastBar.date.getDay();
         var lbDateHours = lastBar.date.getHours();
         var lbDateMins = lastBar.date.getMinutes();
@@ -115,22 +160,15 @@ for (let symbol in $stockIndices) {
                 break;
         }
 
-        var setLvl = lastBar.high - (lastBar.high - lastBar.low) / $multiplier;
         if (lastBar.open > setLvl && lastBar.close > setLvl) {
             // now we have prev bar setup properly
             // check if current price has broke out
             if (currPrice > lastBar.high) {
-                decisionBars.push({
-                    open: lastBar.open,
-                    high: lastBar.high,
-                    low: lastBar.low,
-                    close: lastBar.close,
-                    volume: lastBar.volume,
-                    time: lastBar.time,
-                    date: lastBar.date,
-                    intvl: intvl,
-                    setLvl: setLvl
-                });
+                decisionBars.push(lastBar);
+                if (decisionBars.length > 1) {
+                    $bot.log('decision bars:', decisionBars);
+                }
+
             }
         }
 
@@ -142,11 +180,11 @@ for (let symbol in $stockIndices) {
     var stopLossIntvl = '';
 
     var msg = [];
-    $log('decision bars lenght', decisionBars.length);
+    $log('decision bars length', decisionBars.length);
     if (decisionBars.length > 1) {
         for (let idx = 0; idx < decisionBars.length; idx++) {
-            $log(intvl + ' @ ' + decisionBars[idx].date.text('M-D-YY hh:mm:ss A'));
-            msg.push(intvl + ' @ ' + decisionBars[idx].date.text('M-D-YY hh:mm:ss A'));
+            $log(decisionBars[idx].intvl + ' @ ' + decisionBars[idx].date.text('M-D-YY hh:mm:ss A'));
+            msg.push(decisionBars[idx].intvl + ' @ ' + decisionBars[idx].date.text('M-D-YY hh:mm:ss A'));
             sigCount++;
             // ??? do we take the stop loss of the smallest interval or largest interval ???
             stopLossVal = decisionBars[idx].low;
