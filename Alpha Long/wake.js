@@ -9,19 +9,18 @@ var completedCount = 0;
 $log('Initializing stock variables...');
 $bot.log('Initializing stock variables...');
 
-// SETUP STOCK VARIABLE ==================================
 $stockArray = [];
-$stocks[$stock1.symbol] = {};
-$stocks[$stock2.symbol] = {};
-$stocks[$stock3.symbol] = {};
-$stocks[$stock4.symbol] = {};
-$stocks[$stock5.symbol] = {};
-$stocks[$stock6.symbol] = {};
-$stocks[$stock7.symbol] = {};
-$stocks[$stock8.symbol] = {};
-$stocks[$stock9.symbol] = {};
-$stocks[$stock10.symbol] = {};
-
+var idx = 0;
+$stockIndices[$stock1.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock2.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock3.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock4.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock5.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock6.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock7.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock8.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock9.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
+$stockIndices[$stock10.symbol] = { '1w': idx++, '1d': idx++, '1h': idx++, '30m': idx++, '15m': idx++, '10m': idx++, '5m': idx++ };
 
 getData($stock1);
 getData($stock2);
@@ -37,6 +36,12 @@ getData($stock10);
 
 function getData(thisStock) {
     $data
+        .chart({
+            symbol: thisStock,
+            interval: '1w',
+            period: '30d',
+            minBars: 1
+        })
         .chart({
             symbol: thisStock,
             interval: '1d',
@@ -73,25 +78,17 @@ function getData(thisStock) {
             period: 'intraday',
             minBars: 1
         })
-        .then(function(_1d, _1h, _30m, _15m, _10m, _5m) {
-
+        .then(function (_1w, _1d, _1h, _30m, _15m, _10m, _5m) {
+            $stockArray.push(_1w);
             $stockArray.push(_1d);
             $stockArray.push(_1h);
             $stockArray.push(_30m);
             $stockArray.push(_15m);
             $stockArray.push(_10m);
             $stockArray.push(_5m);
-
-            $stocks[thisStock.symbol].p1d = _1d;
-            $stocks[thisStock.symbol].p1h = _1h;
-            $stocks[thisStock.symbol].p30min = _30m;
-            $stocks[thisStock.symbol].p15min = _15m;
-            $stocks[thisStock.symbol].p10min = _10m;
-            $stocks[thisStock.symbol].p5min = _5m;
             completedCount++;
             if (completedCount === stockCount) {
-                $log($stockArray);
-                $log('All Data Retrieved', $stocks);
+                $log('All Data Retrieved', $stockArray);
                 $done();
             }
         });
